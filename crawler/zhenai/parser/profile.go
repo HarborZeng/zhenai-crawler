@@ -6,7 +6,9 @@ import (
 	"log"
 	"strconv"
 	"strings"
-	"zhenai-crawler/crawler/common"
+	"zhenai-crawler/crawler/common/constant"
+	"zhenai-crawler/crawler/common/reporter"
+	"zhenai-crawler/crawler/common/util"
 	"zhenai-crawler/crawler/engine"
 	"zhenai-crawler/crawler/model"
 )
@@ -17,11 +19,11 @@ func ParseProfile(contents []byte) engine.ParseResult {
 
 	document, err := goquery.NewDocumentFromReader(bytes.NewReader(contents))
 	if err != nil {
-		common.ReportError("goquery解析网页出错", err)
+		reporter.ReportError("goquery解析网页出错", err)
 	}
 
 	if document.Find(".info > .id").Length() == 0 {
-		common.ReportMessage("查到一个不开放的用户")
+		reporter.ReportMessage("查到一个不开放的用户")
 		log.Print("查到一个不开放的用户")
 		return engine.ParseResult{}
 	}
@@ -75,11 +77,9 @@ func extractDetails(profile *model.Profile, document *goquery.Document) {
 			case strings.Contains(text, "购房") || strings.Contains(text, "宿舍") ||
 				strings.Contains(text, "租房") || strings.Contains(text, "同住"):
 				profile.Detail.Housing = text
-			case text == "没有小孩" || text == "有孩子且住在一起" ||
-				text == "有孩子且偶尔会一起住" || text == "有孩子但不在身边":
+			case util.Contain(text, constant.ChildCondition):
 				profile.Detail.Child = text
-			case text == "视情况而定" || text == "想要孩子" ||
-				text == "不想要孩子" || text == "以后再告诉你":
+			case util.Contain(text, constant.WillGiveBirthCondition):
 				profile.Detail.WillGiveBirth = text[19:]
 			case strings.Contains(text, "时机成熟") ||
 				strings.Contains(text, "年内") || text == "认同闪婚":
@@ -104,7 +104,7 @@ func extractBasis(profile *model.Profile, document *goquery.Document) {
 
 	//昵称
 	profile.Basis.Nickname = document.
-		Find(".right > .info > .name > .nickName").Text()
+		Find(".right > .info > .name > .nickName").First().Text()
 	//实名认证
 	profile.Basis.IsRealName = document.
 		Find(".right > .info > .name > .realname").Length() != 0
@@ -129,26 +129,26 @@ func extractBasis(profile *model.Profile, document *goquery.Document) {
 				profile.Basis.Age, err = strconv.Atoi(
 					strings.Replace(text, "岁", "", -1))
 				if err != nil {
-					common.ReportError("获取年龄出错", err)
+					reporter.ReportError("获取年龄出错", err)
 				}
 			case strings.HasSuffix(text, "cm"):
 				profile.Basis.Height, err = strconv.Atoi(
 					strings.Replace(text, "cm", "", -1))
 				if err != nil {
-					common.ReportError("获取身高出错", err)
+					reporter.ReportError("获取身高出错", err)
 				}
 			case strings.HasSuffix(text, "kg"):
 				profile.Basis.Weight, err = strconv.Atoi(
 					strings.Replace(text, "kg", "", -1))
 				if err != nil {
-					common.ReportError("获取体重出错", err)
+					reporter.ReportError("获取体重出错", err)
 				}
 			case strings.Contains(text, "(") &&
 				strings.HasSuffix(text, ")"):
 				profile.Basis.Sigh = text[:9]
 			case strings.HasPrefix(text, "工作地"):
 				profile.Basis.WorkPlace = text[10:]
-			case text == "未婚" || text == "离异" || text == "丧偶":
+			case util.Contain(text, constant.MaritalStatusCondition):
 				profile.Basis.MaritalStatus = text
 			}
 		})
@@ -165,7 +165,7 @@ func extractId(document *goquery.Document, profile *model.Profile) {
 	profile.Id, err = strconv.ParseInt(
 		document.Find(".info > .id").Text()[5:], 10, 64)
 	if err != nil {
-		common.ReportError("获取用户ID出错", err)
+		reporter.ReportError("获取用户ID出错", err)
 	}
 }
 
@@ -174,7 +174,7 @@ func extractAvatar(document *goquery.Document, profile *model.Profile) {
 	mainAvatar, ex := document.
 		Find(".top > .logo").Attr("style")
 	if !ex {
-		common.ReportMessage("未成功获取用户头像URL")
+		reporter.ReportMessage("未成功获取用户头像URL: " + profile.Basis.Nickname)
 	}
 	if strings.Contains(mainAvatar, "?") {
 		mainAvatar = mainAvatar[:strings.Index(mainAvatar, "?")]

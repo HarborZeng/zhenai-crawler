@@ -2,7 +2,7 @@ package parser
 
 import (
 	"regexp"
-	"zhenai-crawler/crawler/common"
+	"zhenai-crawler/crawler/common/constant"
 	"zhenai-crawler/crawler/engine"
 )
 
@@ -21,7 +21,7 @@ func ParseCityList(contents []byte) engine.ParseResult {
 		result.Requests = append(result.Requests, engine.Request{
 			Url: string(m[1]), ParserFunc: ParseCity,
 		})
-		if common.DebugMode {
+		if constant.DebugMode {
 			limit--
 		}
 		if limit <= 0 {

@@ -1,4 +1,4 @@
-package common
+package reporter
 
 import (
 	"net/http"
