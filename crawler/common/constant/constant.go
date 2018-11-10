@@ -1,6 +1,6 @@
 package constant
 
-var DebugMode = true //是否开启debug模式
+var DebugMode = false //是否开启debug模式
 
 var ChildCondition = []string{
 	"没有小孩",
