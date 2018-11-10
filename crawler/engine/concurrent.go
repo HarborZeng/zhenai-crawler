@@ -16,6 +16,7 @@ type Scheduler interface {
 
 func (e *ConcurrentEngine) Run(seeds ...Request) {
 	out := make(chan ParseResult)
+	e.Scheduler.Run()
 
 	for i := 0; i < e.WorkerCount; i++ {
 		createWorker(out, e.Scheduler)
