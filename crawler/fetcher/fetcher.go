@@ -10,12 +10,17 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"time"
 	"zhenai-crawler/crawler/common/reporter"
 )
 
 const UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36"
 
+var rateLimiter = time.Tick(20 * time.Millisecond)
+
 func Fetch(url string) ([]byte, error) {
+	<-rateLimiter
+
 	request, e := http.NewRequest(http.MethodGet, url, nil)
 	if e != nil {
 		panic(e)

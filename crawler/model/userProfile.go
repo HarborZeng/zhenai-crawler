@@ -39,7 +39,7 @@ type hobby struct {
 }
 
 type Profile struct {
-	Id           int64
+	Id           string
 	Introduction string
 	Basis        basicInfo
 	Detail       detailedInfo
