@@ -1,5 +1,7 @@
 package constant
 
+import "sync"
+
 var DebugMode = false //是否开启debug模式
 
 var ChildCondition = []string{
@@ -21,3 +23,5 @@ var MaritalStatusCondition = []string{
 	"未婚",
 	"丧偶",
 }
+
+var DeduplicationBoolMap = sync.Map{}

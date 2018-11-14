@@ -22,21 +22,31 @@ func ParseProfile(contents []byte) engine.ParseResult {
 		reporter.ReportError("goquery解析网页出错", err)
 	}
 
-	if document.Find(".info > .id").Length() == 0 {
+	idSelection := document.Find(".info > .id")
+	if idSelection.Length() == 0 {
 		reporter.ReportMessage("查到一个不开放的用户")
 		log.Print("查到一个不开放的用户")
 		return engine.ParseResult{}
 	}
 
-	extractAvatar(document, &profile)
-	extractId(document, &profile)
-	extractIntroduction(&profile, document)
-	extractBasis(&profile, document)
-	extractDetails(&profile, document)
-	extractHobbies(&profile, document)
+	if _, ok := constant.DeduplicationBoolMap.Load(idSelection.Text()); !ok {
 
-	return engine.ParseResult{
-		Items: []interface{}{profile},
+		extractAvatar(document, &profile)
+		extractId(document, &profile)
+		extractIntroduction(&profile, document)
+		extractBasis(&profile, document)
+		extractDetails(&profile, document)
+		extractHobbies(&profile, document)
+
+		constant.DeduplicationBoolMap.Store(idSelection.Text(), true)
+
+		return engine.ParseResult{
+			Items: []interface{}{profile},
+		}
+	} else {
+		log.Printf("检测到一个重复的%s\n", idSelection.Text())
+		reporter.ReportMessage("检测到一个重复的" + idSelection.Text())
+		return engine.ParseResult{}
 	}
 }
 

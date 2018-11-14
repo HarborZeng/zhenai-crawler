@@ -10,6 +10,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"zhenai-crawler/crawler/common/reporter"
 )
 
 const UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36"
@@ -24,6 +25,7 @@ func Fetch(url string) ([]byte, error) {
 	resp, err := http.DefaultClient.Do(request)
 
 	if err != nil {
+		reporter.ReportError("HttpClient请求出错", err)
 		panic(err)
 	}
 	defer resp.Body.Close()
