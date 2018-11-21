@@ -1,5 +1,7 @@
 package engine
 
+import "zhenai-crawler/crawler/model"
+
 type Request struct {
 	Url        string
 	ParserFunc func([]byte) ParseResult
@@ -7,7 +9,7 @@ type Request struct {
 
 type ParseResult struct {
 	Requests []Request
-	Items    []interface{}
+	Items    []model.Profile
 }
 
 // do nothing parser

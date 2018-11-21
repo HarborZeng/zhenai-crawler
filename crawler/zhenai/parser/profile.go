@@ -41,7 +41,7 @@ func ParseProfile(contents []byte) engine.ParseResult {
 		constant.DeduplicationBoolMap.Store(idSelection.Text(), true)
 
 		return engine.ParseResult{
-			Items: []interface{}{profile},
+			Items: []model.Profile{profile},
 		}
 	} else {
 		log.Printf("检测到一个重复的%s\n", idSelection.Text())
@@ -125,14 +125,12 @@ func extractBasis(profile *model.Profile, document *goquery.Document) {
 	document.Find(".purple-btns > div").
 		Each(func(i int, selection *goquery.Selection) {
 			text := selection.Text()
-			switch i {
-			case document.Find(".purple-btns > div").Length() - 2:
-				profile.Basis.Occupation = text
-			case document.Find(".purple-btns > div").Length() - 1:
-				profile.Basis.Education = text
-			}
 
 			switch {
+			case util.Contain(text, constant.EducationCondition):
+				profile.Basis.Education = text
+			case util.Contain(text, constant.OccupationCondition):
+				profile.Basis.Occupation = text
 			case strings.HasPrefix(text, "月收入"):
 				profile.Basis.Income = text[10:]
 			case strings.HasSuffix(text, "岁"):
