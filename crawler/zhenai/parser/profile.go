@@ -24,7 +24,7 @@ func ParseProfile(contents []byte) engine.ParseResult {
 
 	idSelection := document.Find(".info > .id")
 	if idSelection.Length() == 0 {
-		reporter.ReportMessage("查到一个不开放的用户")
+		//reporter.ReportMessage("查到一个不开放的用户")
 		log.Print("查到一个不开放的用户")
 		return engine.ParseResult{}
 	}
@@ -45,7 +45,7 @@ func ParseProfile(contents []byte) engine.ParseResult {
 		}
 	} else {
 		log.Printf("检测到一个重复的%s\n", idSelection.Text())
-		reporter.ReportMessage("检测到一个重复的" + idSelection.Text())
+		//reporter.ReportMessage("检测到一个重复的" + idSelection.Text())
 		return engine.ParseResult{}
 	}
 }
@@ -169,12 +169,7 @@ func extractIntroduction(profile *model.Profile, document *goquery.Document) {
 
 func extractId(document *goquery.Document, profile *model.Profile) {
 	//user id
-	var err error
-	profile.Id, err = strconv.ParseInt(
-		document.Find(".info > .id").Text()[5:], 10, 64)
-	if err != nil {
-		reporter.ReportError("获取用户ID出错", err)
-	}
+	profile.Id = document.Find(".info > .id").Text()[5:]
 }
 
 func extractAvatar(document *goquery.Document, profile *model.Profile) {
