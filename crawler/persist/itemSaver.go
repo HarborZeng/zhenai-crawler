@@ -2,20 +2,20 @@ package persist
 
 import (
 	"context"
-	"gopkg.in/olivere/elastic.v5"
+	"github.com/olivere/elastic"
 	"log"
 	"zhenai-crawler/crawler/common/reporter"
 	"zhenai-crawler/crawler/model"
 )
 
-func ItemSaver() (chan interface{}, error) {
+func ItemSaver() (chan model.Profile, error) {
 	client, err := elastic.NewClient(elastic.SetSniff(false))
 	if err != nil {
 		reporter.ReportError("创建elastic客户端出错", err)
 		return nil, err
 	}
 
-	out := make(chan interface{})
+	out := make(chan model.Profile)
 	go func() {
 		itemCounter := 0
 		for {
@@ -32,18 +32,13 @@ func ItemSaver() (chan interface{}, error) {
 	return out, nil
 }
 
-func save(client *elastic.Client, item interface{}) (id string, err error) {
-	switch item.(type) {
-	case model.Profile:
-		response, err := client.Index().
-			Index("dating_profile").Type("zhenai").Id(item.(model.Profile).Id).
-			BodyJson(item).Do(context.Background())
-		if err != nil {
-			reporter.ReportError("es插入数据出错", err)
-			return "", err
-		}
-		return response.Id, nil
-	default:
+func save(client *elastic.Client, item model.Profile) (id string, err error) {
+	response, err := client.Index().
+		Index("dating_profile").Type("zhenai").Id(item.Id).
+		BodyJson(item).Do(context.Background())
+	if err != nil {
+		reporter.ReportError("es插入数据出错", err)
 		return "", err
 	}
+	return response.Id, nil
 }
