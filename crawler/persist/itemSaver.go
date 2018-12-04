@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/olivere/elastic"
 	"log"
+	"os/exec"
 	"zhenai-crawler/crawler/common/reporter"
 	"zhenai-crawler/crawler/model"
 )
@@ -12,7 +13,12 @@ func ItemSaver() (chan model.Profile, error) {
 	client, err := elastic.NewClient(elastic.SetSniff(false))
 	if err != nil {
 		reporter.ReportError("创建elastic客户端出错", err)
-		return nil, err
+		cmdResult := exec.Command("powershell", "scripts/fcheck_elastic_docker_run.ps1")
+		if result, err := cmdResult.Output(); err != nil {
+			return nil, err
+		} else {
+			log.Printf("%s\n", result)
+		}
 	}
 
 	out := make(chan model.Profile)

@@ -19,7 +19,6 @@ const UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 
 var rateLimiter = time.Tick(60 * time.Millisecond)
 
 func Fetch(url string) ([]byte, error) {
-	<-rateLimiter
 
 	request, e := http.NewRequest(http.MethodGet, url, nil)
 	if e != nil {
