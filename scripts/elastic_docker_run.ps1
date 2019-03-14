@@ -1,5 +1,5 @@
 # encoding: utf-8
-# auther: ZengXiaogang email: s_zengxiaogang@wps.cn
+# author: HarborZeng
 
 $CONTAINER_NAME = "zhenai_crawler_elastic"
 
